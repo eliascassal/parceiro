@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::All();
+        $user = User::paginate();
         return view('user.index', compact('user'));
         
     }
@@ -26,7 +26,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return view('user.create');
     }
 
     /**
@@ -37,7 +37,26 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+            $validatedData = $request->validate([
+                'name'=>'required',
+                'password'=>'required',
+                'avatar'=>'required|image'
+                ]);
+           $user = new User(); 
+            if($request->hasFile('avatar')){
+                $file = $request->file('avatar');
+                $foto = time().$file->getClientOriginalName();
+                $file->move(public_path().'/images/',$foto);
+            }
+            $user->email = $request->input('email');
+            $user->name = $request->input('name');
+            $user->profile_photo_path = $foto;
+            $user->password = $request->input('password');
+            $user->save();
+    
+            $user = User::All();
+            return view('user.index', compact('user')); 
     }
 
     /**
@@ -48,7 +67,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+      return view('user.show', compact('user'));
     }
 
     /**
